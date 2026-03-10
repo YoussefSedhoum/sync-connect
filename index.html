@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNC | Tap To Connect</title>
+    <style>
+        /* تصميم عصري ومناسب للموبايل (Cyber Vibe) */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0f172a; /* لون كحلي غامق جداً */
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            text-align: center; 
+            background: #1e293b; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); 
+            width: 85%; 
+            max-width: 350px; 
+        }
+        h1 { margin-bottom: 5px; letter-spacing: 2px; }
+        p { color: #94a3b8; margin-top: 0; font-size: 14px; }
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            border: 2px solid #334155; 
+            background-color: #0f172a;
+            color: white;
+            font-size: 20px; 
+            text-align: center; 
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: #3b82f6; }
+        button { 
+            background-color: #3b82f6; 
+            color: white; 
+            border: none; 
+            padding: 15px 24px; 
+            font-size: 16px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #2563eb; }
+        .loader { display: none; margin-top: 15px; font-size: 14px; color: #3b82f6; }
+        .error { color: #ef4444; margin-top: 15px; font-size: 14px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SYNC</h1>
+        <p>أدخل كود التيشرت للاتصال</p>
+        
+        <input type="text" id="pinInput" placeholder="مثال: 045" maxlength="4" autocomplete="off">
+        <button onclick="connectUser()">توصيل (Connect)</button>
+        
+        <div id="loader" class="loader">جاري الاتصال بالسيرفر...</div>
+        <div id="errorMsg" class="error"></div>
+    </div>
+
+    <script>
+        // !!!!! حط الرابط اللي أخدته من جوجل هنا مكان الجملة اللي بين القوسين !!!!!
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQbhSej9Gzuv8kEZ3zDON_VfGrED6yzchGrSzGAGQ6Qyx8lVGbK9A5PYsqG-TrYLRN/exec';
+
+        async function connectUser() {
+            const pin = document.getElementById('pinInput').value;
+            const loader = document.getElementById('loader');
+            const errorMsg = document.getElementById('errorMsg');
+
+            if (!pin) {
+                errorMsg.innerText = "برجاء إدخال الكود المطبوع على التيشرت!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // تشغيل الأنيميشن بتاع التحميل
+            loader.style.display = 'block';
+            errorMsg.style.display = 'none';
+
+            try {
+                // إرسال الطلب لجوجل شيت
+                const response = await fetch(`${SCRIPT_URL}?pin=${pin}`);
+                const data = await response.json();
+
+                if (data.success && data.url) {
+                    // لو الكود صح، وجهه للينك فوراً
+                    window.location.href = data.url;
+                } else {
+                    // لو الكود غلط
+                    loader.style.display = 'none';
+                    errorMsg.innerText = data.error;
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                // لو حصل مشكلة في الإنترنت
+                loader.style.display = 'none';
+                errorMsg.innerText = "حدث خطأ في الاتصال، تأكد من الإنترنت!";
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
